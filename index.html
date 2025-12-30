@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truyện Tranh Của Tôi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #2a2a2a;
+            z-index: 1000;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #9b59b6, #e91e63);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 4px;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #333;
+            z-index: 999;
+            padding: 15px 20px;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .menu-btn:hover {
+            background: #2a2a2a;
+        }
+
+        .header-title {
+            text-align: center;
+            flex: 1;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-title p {
+            font-size: 13px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        /* Side Menu */
+        .menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1001;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .menu-overlay.active {
+            display: block;
+        }
+
+        .side-menu {
+            position: fixed;
+            left: -350px;
+            top: 0;
+            bottom: 0;
+            width: 320px;
+            background: #1a1a1a;
+            border-right: 1px solid #333;
+            z-index: 1002;
+            overflow-y: auto;
+            transition: left 0.3s ease;
+        }
+
+        .side-menu.active {
+            left: 0;
+        }
+
+        .menu-header {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-header h2 {
+            font-size: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            background: #2a2a2a;
+        }
+
+        .chapter-list {
+            padding: 10px;
+        }
+
+        .chapter-item {
+            background: #2a2a2a;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .chapter-item:hover {
+            background: #333;
+        }
+
+        .chapter-item.active {
+            background: #9b59b6;
+            border-color: #e91e63;
+        }
+
+        .chapter-item h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .chapter-item p {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 80px;
+            padding-bottom: 100px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            margin-bottom: 2px;
+        }
+
+        .panel-text {
+            background: linear-gradient(135deg, #9b59b6, #e91e63);
+            padding: 100px 20px;
+            text-align: center;
+        }
+
+        .panel-text h2 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .panel-text p {
+            font-size: 24px;
+            opacity: 0.9;
+        }
+
+        .panel img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Footer Navigation */
+        .footer-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #333;
+            padding: 15px 20px;
+            z-index: 999;
+        }
+
+        .footer-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-btn {
+            background: #9b59b6;
+            border: none;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #8e44ad;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #2a2a2a;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .page-indicator {
+            font-size: 14px;
+            color: #888;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .side-menu {
+                width: 85%;
+                max-width: 320px;
+            }
+            
+            .panel-text h2 {
+                font-size: 36px;
+            }
+            
+            .panel-text p {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <button class="menu-btn" onclick="toggleMenu()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+            </button>
+            <div class="header-title">
+                <h1 id="comicTitle">Chuyến Phiêu Lưu Kỳ Thú</h1>
+                <p id="chapterTitle">Chương 1: Khởi Đầu</p>
+            </div>
+            <div style="width: 40px;"></div>
+        </div>
+    </header>
+
+    <!-- Side Menu -->
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+    <div class="side-menu" id="sideMenu">
+        <div class="menu-header">
+            <h2>Danh Sách Chương</h2>
+            <button class="close-btn" onclick="toggleMenu()">×</button>
+        </div>
+        <div class="chapter-list" id="chapterList"></div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent"></main>
+
+    <!-- Footer Navigation -->
+    <footer class="footer-nav">
+        <div class="footer-content">
+            <button class="nav-btn" id="prevBtn" onclick="prevChapter()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+                Trước
+            </button>
+            <div class="page-indicator" id="pageIndicator">1 / 3</div>
+            <button class="nav-btn" id="nextBtn" onclick="nextChapter()">
+                Tiếp
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        // Dữ liệu truyện - Bạn có thể chỉnh sửa ở đây
+        const comicData = {
+            title: "Chuyến Phiêu Lưu Kỳ Thú",
+            author: "Tên Tác Giả",
+            chapters: [
+                {
+                    id: 0,
+                    title: "Chương 1: Khởi Đầu",
+                    panels: [
+                        { type: 'text', content: 'Chương 1', subtitle: 'Khởi Đầu' },
+                        { type: 'image', url: 'https://via.placeholder.com/900x1200/FF6B6B/fff?text=Panel+1', alt: 'Panel 1' },
+                        { type: 'image', url: 'https://via.placeholder.com/900x1000/4ECDC4/fff?text=Panel+2', alt: 'Panel 2' },
+                        { type: 'image', url: 'https://via.placeholder.com/900x1400/45B7D1/fff?text=Panel+3', alt: 'Panel 3' },
+                        { type: 'image', url: 'https://via.placeholder.com/900x1100/96CEB4/fff?text=Panel+4', alt: 'Panel 4' },
+                    ]
+                },
+                {
+                    id: 1,
+                    title: "Chương 2: Cuộc Gặp Gỡ",
+                    panels: [
+                        { type: 'text', content: 'Chương 2', subtitle: 'Cuộc Gặp Gỡ' },
+                        { type: 'image', url: 'https://via.placeholder.com/900x1200/DFE6E9/333?text=Panel+1', alt: 'Panel 1' },
+                        { type: 'image', url: 'https://via.placeholder.com/900x1100/74B9FF/fff?text=Panel+2', alt: 'Panel 2' },
+                        { type: 'image', url: 'https://via.placeholder.com/900x1300/A29BFE/fff?text=Panel+3', alt: 'Panel 3' },
+                    ]
+                },
+                {
+                    id: 2,
+                    title: "Chương 3: Thử Thách",
+                    panels: [
+                        { type: 'text', content: 'Chương 3', subtitle: 'Thử Thách' },
+                        { type: 'image', url: 'https://via.placeholder.com/900x1200/FD79A8/fff?text=Panel+1', alt: 'Panel 1' },
+                        { type: 'image', url: 'https://via.placeholder.com/900x1000/FDCB6E/333?text=Panel+2', alt: 'Panel 2' },
+                    ]
+                }
+            ]
+        };
+
+        let currentChapter = 0;
+
+        // Khởi tạo
+        function init() {
+            renderChapterList();
+            loadChapter(0);
+            updateNavigation();
+        }
+
+        // Render danh sách chương
+        function renderChapterList() {
+            const listEl = document.getElementById('chapterList');
+            listEl.innerHTML = comicData.chapters.map((chapter, index) => `
+                <div class="chapter-item ${index === currentChapter ? 'active' : ''}" 
+                     onclick="loadChapter(${index})">
+                    <h3>${chapter.title}</h3>
+                    <p>${chapter.panels.length - 1} panels</p>
+                </div>
+            `).join('');
+        }
+
+        // Load chương
+        function loadChapter(index) {
+            currentChapter = index;
+            const chapter = comicData.chapters[index];
+            
+            document.getElementById('chapterTitle').textContent = chapter.title;
+            
+            const contentEl = document.getElementById('mainContent');
+            contentEl.innerHTML = chapter.panels.map(panel => {
+                if (panel.type === 'text') {
+                    return `
+                        <div class="panel panel-text">
+                            <h2>${panel.content}</h2>
+                            <p>${panel.subtitle}</p>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="panel">
+                            <img src="${panel.url}" alt="${panel.alt}" loading="lazy">
+                        </div>
+                    `;
+                }
+            }).join('');
+            
+            window.scrollTo(0, 0);
+            updateNavigation();
+            renderChapterList();
+            toggleMenu();
+        }
+
+        // Toggle menu
+        function toggleMenu() {
+            const overlay = document.getElementById('menuOverlay');
+            const menu = document.getElementById('sideMenu');
+            overlay.classList.toggle('active');
+            menu.classList.toggle('active');
+        }
+
+        // Navigation
+        function prevChapter() {
+            if (currentChapter > 0) {
+                loadChapter(currentChapter - 1);
+            }
+        }
+
+        function nextChapter() {
+            if (currentChapter < comicData.chapters.length - 1) {
+                loadChapter(currentChapter + 1);
+            }
+        }
+
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentChapter === 0;
+            document.getElementById('nextBtn').disabled = currentChapter === comicData.chapters.length - 1;
+            document.getElementById('pageIndicator').textContent = 
+                `${currentChapter + 1} / ${comicData.chapters.length}`;
+        }
+
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const winScroll = document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressFill').style.width = scrolled + '%';
+        });
+
+        // Khởi động
+        init();
+    </script>
+</body>
+</html>
