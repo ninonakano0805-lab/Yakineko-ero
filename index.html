@@ -220,6 +220,12 @@
             width: 90%;
             border: 2px solid #333;
             animation: slideUp 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal.wide {
+            max-width: 900px;
         }
 
         @keyframes slideUp {
@@ -311,20 +317,51 @@
             font-size: 14px;
         }
 
-        /* Admin Panel */
-        .admin-panel {
-            background: #2a2a2a;
-            border-radius: 20px;
-            padding: 30px;
+        .success-message {
+            color: #51cf66;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        /* Admin Zone Tabs */
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
             margin-bottom: 30px;
+            border-bottom: 2px solid #333;
         }
 
-        .admin-panel h3 {
-            font-size: 24px;
-            margin-bottom: 20px;
+        .admin-tab {
+            background: none;
+            border: none;
+            color: #888;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .admin-tab.active {
             color: #9b59b6;
+            border-bottom-color: #9b59b6;
         }
 
+        .admin-tab:hover {
+            color: #fff;
+        }
+
+        .admin-tab-content {
+            display: none;
+        }
+
+        .admin-tab-content.active {
+            display: block;
+        }
+
+        /* Code List */
         .code-list {
             display: grid;
             gap: 15px;
@@ -380,6 +417,141 @@
 
         .copy-btn:hover {
             background: #8e44ad;
+        }
+
+        /* Image Management */
+        .comic-select {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .comic-select-item {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #333;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .comic-select-item:hover {
+            border-color: #9b59b6;
+            background: #222;
+        }
+
+        .comic-select-item.selected {
+            border-color: #9b59b6;
+            background: #2a2a2a;
+        }
+
+        .comic-select-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .comic-select-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .upload-zone {
+            border: 2px dashed #444;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .upload-zone:hover {
+            border-color: #9b59b6;
+            background: #222;
+        }
+
+        .upload-zone.dragover {
+            border-color: #e91e63;
+            background: #2a2a2a;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: #aaa;
+            font-size: 16px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .image-item {
+            position: relative;
+            aspect-ratio: 3/4;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-delete {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 0, 0, 0.8);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            opacity: 0;
+        }
+
+        .image-item:hover .image-delete {
+            opacity: 1;
+        }
+
+        .image-delete:hover {
+            background: rgba(255, 0, 0, 1);
+            transform: scale(1.1);
+        }
+
+        .image-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            padding: 8px;
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .no-images {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            font-size: 16px;
         }
 
         /* Donate QR */
@@ -745,6 +917,10 @@
                 padding: 8px 12px;
                 font-size: 13px;
             }
+
+            .image-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
         }
 
         @media (max-width: 480px) {
@@ -773,7 +949,7 @@
                         <rect x="3" y="3" width="18" height="18" rx="2"/>
                         <path d="M9 3v18M3 9h18"/>
                     </svg>
-                    A.zone
+                    A.Zone
                 </button>
                 <button class="top-nav-btn donate" onclick="showDonate()">
                     <svg width="16" height="16" fill="currentColor">
@@ -874,7 +1050,7 @@
     <div class="modal-overlay" id="adminModal">
         <div class="modal">
             <h2>🔑 Admin Access</h2>
-            <p>Nhập mật khẩu admin để xem các mã truy cập</p>
+            <p>Nhập mật khẩu admin để truy cập A.Zone</p>
             <input type="password" class="modal-input" id="adminPassword" placeholder="Mật khẩu admin...">
             <div class="error-message" id="adminError"></div>
             <div class="modal-buttons">
@@ -886,14 +1062,25 @@
 
     <!-- Admin Panel Modal -->
     <div class="modal-overlay" id="adminPanelModal">
-        <div class="modal" style="max-width: 700px;">
+        <div class="modal wide">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="margin: 0;">📋 Admin Panel</h2>
+                <h2 style="margin: 0;">🎯 A.Zone</h2>
                 <button class="close-btn" onclick="closeAdminPanelModal()">×</button>
             </div>
-            <div class="admin-panel" style="margin: 0;">
-                <h3>Mã Truy Cập Hiện Tại</h3>
+            
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="switchAdminTab('codes')">📋 Mã Truy Cập</button>
+                <button class="admin-tab" onclick="switchAdminTab('images')">🖼️ Quản Lý Ảnh</button>
+            </div>
+
+            <!-- Codes Tab -->
+            <div class="admin-tab-content active" id="codesTab">
                 <div class="code-list" id="codeList"></div>
+            </div>
+
+            <!-- Images Tab -->
+            <div class="admin-tab-content" id="imagesTab">
+                <div class="comic-select" id="comicSelectList"></div>
             </div>
         </div>
     </div>
@@ -916,6 +1103,9 @@
         </div>
     </div>
 
+    <!-- Hidden file input -->
+    <input type="file" id="fileInput" accept="image/*" multiple style="display: none">
+
     <script>
         const ADMIN_PASSWORD = "Monikayeudau@20217885";
         const CODE_DURATION = 30 * 60 * 1000; // 30 phút
@@ -928,6 +1118,7 @@
                 cover: "https://via.placeholder.com/400x533/FF6B6B/fff?text=Pickle+Ball",
                 isNew: true,
                 isLocked: true,
+                images: [], // Lưu danh sách ảnh
                 chapters: [
                     {
                         id: 0,
@@ -959,6 +1150,7 @@
                 cover: "https://via.placeholder.com/400x533/4ECDC4/fff?text=Doi+Thuong",
                 isNew: false,
                 isLocked: true,
+                images: [],
                 chapters: [
                     {
                         id: 0,
@@ -979,6 +1171,7 @@
                 cover: "https://via.placeholder.com/400x533/45B7D1/fff?text=Meo+Chuot",
                 isNew: true,
                 isLocked: true,
+                images: [],
                 chapters: [
                     {
                         id: 0,
@@ -999,6 +1192,7 @@
                 cover: "https://via.placeholder.com/400x533/96CEB4/fff?text=Phieu+Luu",
                 isNew: false,
                 isLocked: true,
+                images: [],
                 chapters: [
                     {
                         id: 0,
@@ -1019,6 +1213,7 @@
                 cover: "https://via.placeholder.com/400x533/A29BFE/fff?text=Tinh+Yeu",
                 isNew: true,
                 isLocked: true,
+                images: [],
                 chapters: [
                     {
                         id: 0,
@@ -1040,6 +1235,7 @@
         let pendingComicId = null;
         let accessCodes = {};
         let codeTimers = {};
+        let selectedComicForUpload = null;
 
         // Tạo mã ngẫu nhiên 10 số
         function generateCode() {
@@ -1179,9 +1375,31 @@
             if (input === ADMIN_PASSWORD) {
                 closeAdminModal();
                 document.getElementById('adminPanelModal').classList.add('active');
-                updateAdminPanel();
+                switchAdminTab('codes');
             } else {
                 document.getElementById('adminError').textContent = 'Mật khẩu không đúng!';
+            }
+        }
+
+        // Chuyển tab admin
+        function switchAdminTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.admin-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            if (tabName === 'codes') {
+                document.getElementById('codesTab').classList.add('active');
+                updateAdminPanel();
+            } else if (tabName === 'images') {
+                document.getElementById('imagesTab').classList.add('active');
+                renderComicSelectList();
             }
         }
 
@@ -1202,6 +1420,114 @@
             `).join('');
         }
 
+        // Render danh sách truyện để chọn upload
+        function renderComicSelectList() {
+            const listEl = document.getElementById('comicSelectList');
+            listEl.innerHTML = allComics.map(comic => `
+                <div class="comic-select-item ${selectedComicForUpload === comic.id ? 'selected' : ''}" 
+                     onclick="selectComicForUpload(${comic.id})">
+                    <div class="comic-select-header">
+                        <div class="comic-select-title">${comic.title}</div>
+                        <div style="color: #888; font-size: 14px;">${comic.images.length} ảnh</div>
+                    </div>
+                    ${selectedComicForUpload === comic.id ? `
+                        <div class="upload-zone" onclick="event.stopPropagation(); triggerFileInput()">
+                            <div class="upload-icon">📤</div>
+                            <div class="upload-text">Click để tải ảnh lên<br><small>hoặc kéo thả file vào đây</small></div>
+                        </div>
+                        ${comic.images.length > 0 ? `
+                            <div class="image-grid">
+                                ${comic.images.map((img, idx) => `
+                                    <div class="image-item">
+                                        <img src="${img.url}" alt="${img.name}">
+                                        <button class="image-delete" onclick="event.stopPropagation(); deleteImage(${comic.id}, ${idx})" title="Xóa ảnh">×</button>
+                                        <div class="image-info">${img.name}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<div class="no-images">Chưa có ảnh nào</div>'}
+                    ` : ''}
+                </div>
+            `).join('');
+
+            // Setup drag and drop
+            if (selectedComicForUpload !== null) {
+                const uploadZone = document.querySelector('.upload-zone');
+                if (uploadZone) {
+                    setupDragAndDrop(uploadZone);
+                }
+            }
+        }
+
+        // Chọn truyện để upload
+        function selectComicForUpload(comicId) {
+            selectedComicForUpload = selectedComicForUpload === comicId ? null : comicId;
+            renderComicSelectList();
+        }
+
+        // Trigger file input
+        function triggerFileInput() {
+            document.getElementById('fileInput').click();
+        }
+
+        // Setup drag and drop
+        function setupDragAndDrop(element) {
+            element.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                element.classList.add('dragover');
+            });
+
+            element.addEventListener('dragleave', () => {
+                element.classList.remove('dragover');
+            });
+
+            element.addEventListener('drop', (e) => {
+                e.preventDefault();
+                element.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                handleFiles(files);
+            });
+        }
+
+        // Handle file input change
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+            e.target.value = ''; // Reset input
+        });
+
+        // Handle files
+        function handleFiles(files) {
+            if (selectedComicForUpload === null) return;
+
+            const comic = allComics.find(c => c.id === selectedComicForUpload);
+            const fileArray = Array.from(files);
+
+            fileArray.forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    comic.images.push({
+                        url: e.target.result,
+                        name: file.name,
+                        size: file.size,
+                        uploadDate: new Date().toISOString()
+                    });
+                    renderComicSelectList();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Xóa ảnh
+        function deleteImage(comicId, imageIndex) {
+            if (!confirm('Bạn có chắc muốn xóa ảnh này?')) return;
+
+            const comic = allComics.find(c => c.id === comicId);
+            comic.images.splice(imageIndex, 1);
+            renderComicSelectList();
+        }
+
         // Copy mã
         function copyCode(code) {
             navigator.clipboard.writeText(code).then(() => {
@@ -1217,6 +1543,7 @@
         // Đóng admin panel modal
         function closeAdminPanelModal() {
             document.getElementById('adminPanelModal').classList.remove('active');
+            selectedComicForUpload = null;
         }
 
         // Hiện donate
