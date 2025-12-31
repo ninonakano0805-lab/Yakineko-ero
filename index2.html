@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yakineko - Truyện Tranh</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 26, 0.98);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #333;
+            z-index: 1000;
+            padding: 12px 20px;
+        }
+
+        .top-nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-nav-logo {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #9b59b6, #e91e63);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .top-nav-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .top-nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .top-nav-btn {
+            background: #2a2a2a;
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top-nav-btn:hover {
+            background: #9b59b6;
+            transform: translateY(-2px);
+        }
+
+        .top-nav-btn.donate {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        /* Homepage Styles */
+        .homepage {
+            min-height: 100vh;
+            padding: 100px 20px 40px;
+        }
+
+        .homepage-header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 40px 20px;
+        }
+
+        .homepage-header h1 {
+            font-size: 72px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #9b59b6, #e91e63, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            letter-spacing: -2px;
+        }
+
+        .homepage-header p {
+            font-size: 20px;
+            color: #888;
+            font-weight: 300;
+        }
+
+        .comics-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 25px;
+            padding: 0 20px;
+        }
+
+        .comic-card {
+            background: #2a2a2a;
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .comic-card:hover {
+            transform: translateY(-12px);
+            border-color: #9b59b6;
+            box-shadow: 0 20px 40px rgba(155, 89, 182, 0.3);
+        }
+
+        .comic-card.locked {
+            opacity: 0.7;
+        }
+
+        .comic-cover {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .comic-info {
+            padding: 20px;
+        }
+
+        .comic-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .comic-chapters {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .comic-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(233, 30, 99, 0.95);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .lock-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #ffd700;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #2a2a2a;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid #333;
+            animation: slideUp 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal.wide {
+            max-width: 900px;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #9b59b6, #e91e63);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal p {
+            color: #aaa;
+            text-align: center;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: #9b59b6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #9b59b6, #e91e63);
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(155, 89, 182, 0.3);
+        }
+
+        .modal-btn.secondary {
+            background: #333;
+            color: #fff;
+        }
+
+        .modal-btn.secondary:hover {
+            background: #444;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            color: #51cf66;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        /* Admin Zone Tabs */
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+        }
+
+        .admin-tab {
+            background: none;
+            border: none;
+            color: #888;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .admin-tab.active {
+            color: #9b59b6;
+            border-bottom-color: #9b59b6;
+        }
+
+        .admin-tab:hover {
+            color: #fff;
+        }
+
+        .admin-tab-content {
+            display: none;
+        }
+
+        .admin-tab-content.active {
+            display: block;
+        }
+
+        /* Code List */
+        .code-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .code-item {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #333;
+        }
+
+        .code-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .code-item-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .code-value {
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            color: #ffd700;
+            letter-spacing: 2px;
+            padding: 12px;
+            background: #000;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .code-timer {
+            font-size: 13px;
+            color: #888;
+            text-align: center;
+        }
+
+        .copy-btn {
+            background: #9b59b6;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #8e44ad;
+        }
+
+        /* Image Management */
+        .comic-select {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .comic-select-item {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #333;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .comic-select-item:hover {
+            border-color: #9b59b6;
+            background: #222;
+        }
+
+        .comic-select-item.selected {
+            border-color: #9b59b6;
+            background: #2a2a2a;
+        }
+
+        .comic-select-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .comic-select-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .upload-zone {
+            border: 2px dashed #444;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .upload-zone:hover {
+            border-color: #9b59b6;
+            background: #222;
+        }
+
+        .upload-zone.dragover {
+            border-color: #e91e63;
+            background: #2a2a2a;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: #aaa;
+            font-size: 16px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .image-item {
+            position: relative;
+            aspect-ratio: 3/4;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-delete {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 0, 0, 0.8);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            opacity: 0;
+        }
+
+        .image-item:hover .image-delete {
+            opacity: 1;
+        }
+
+        .image-delete:hover {
+            background: rgba(255, 0, 0, 1);
+            transform: scale(1.1);
+        }
+
+        .image-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            padding: 8px;
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .no-images {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            font-size: 16px;
+        }
+
+        /* Donate QR */
+        .donate-content {
+            text-align: center;
+        }
+
+        .qr-code {
+            max-width: 300px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: auto;
+        }
+
+        .donate-info {
+            color: #aaa;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        /* Reader Page Styles */
+        .reader-page {
+            display: none;
+        }
+
+        .reader-page.active {
+            display: block;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #2a2a2a;
+            z-index: 1000;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #9b59b6, #e91e63);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .header {
+            position: fixed;
+            top: 4px;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #333;
+            z-index: 999;
+            padding: 15px 20px;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+        }
+
+        .back-btn:hover {
+            background: #2a2a2a;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .menu-btn:hover {
+            background: #2a2a2a;
+        }
+
+        .header-title {
+            text-align: center;
+            flex: 1;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-title p {
+            font-size: 13px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1001;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .menu-overlay.active {
+            display: block;
+        }
+
+        .side-menu {
+            position: fixed;
+            left: -350px;
+            top: 0;
+            bottom: 0;
+            width: 320px;
+            background: #1a1a1a;
+            border-right: 1px solid #333;
+            z-index: 1002;
+            overflow-y: auto;
+            transition: left 0.3s ease;
+        }
+
+        .side-menu.active {
+            left: 0;
+        }
+
+        .menu-header {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-header h2 {
+            font-size: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            background: #2a2a2a;
+        }
+
+        .chapter-list {
+            padding: 10px;
+        }
+
+        .chapter-item {
+            background: #2a2a2a;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .chapter-item:hover {
+            background: #333;
+        }
+
+        .chapter-item.active {
+            background: #9b59b6;
+            border-color: #e91e63;
+        }
+
+        .chapter-item h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .chapter-item p {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .main-content {
+            padding-top: 80px;
+            padding-bottom: 100px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            margin-bottom: 2px;
+        }
+
+        .panel-text {
+            background: linear-gradient(135deg, #9b59b6, #e91e63);
+            padding: 100px 20px;
+            text-align: center;
+        }
+
+        .panel-text h2 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .panel-text p {
+            font-size: 24px;
+            opacity: 0.9;
+        }
+
+        .panel img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .footer-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #333;
+            padding: 15px 20px;
+            z-index: 999;
+        }
+
+        .footer-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .home-btn {
+            background: #333;
+            border: none;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .home-btn:hover {
+            background: #444;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn {
+            background: #9b59b6;
+            border: none;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #8e44ad;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #2a2a2a;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .page-indicator {
+            font-size: 14px;
+            color: #888;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 1400px) {
+            .comics-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .comics-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .homepage-header h1 {
+                font-size: 48px;
+            }
+
+            .comics-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .side-menu {
+                width: 85%;
+                max-width: 320px;
+            }
+            
+            .panel-text h2 {
+                font-size: 36px;
+            }
+            
+            .panel-text p {
+                font-size: 18px;
+            }
+
+            .top-nav-logo {
+                font-size: 16px;
+            }
+
+            .top-nav-btn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+            .image-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .homepage-header h1 {
+                font-size: 36px;
+            }
+
+            .homepage-header p {
+                font-size: 16px;
+            }
+
+            .comics-grid {
+                grid-template-columns: repeat(1, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <div class="top-nav-content">
+            <div class="top-nav-logo" onclick="goToHomepage()">YAKINEKO</div>
+            <div class="top-nav-buttons">
+                <button class="top-nav-btn" onclick="showAdminPanel()">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <path d="M9 3v18M3 9h18"/>
+                    </svg>
+                    A.Zone
+                </button>
+                <button class="top-nav-btn donate" onclick="showDonate()">
+                    <svg width="16" height="16" fill="currentColor">
+                        <path d="M12 2C9.2 2 8 4 8 4S6.8 2 4 2 0 4 0 6.5C0 11 8 14 8 14s8-3 8-7.5C16 4 14 2 12 2z"/>
+                    </svg>
+                    Donate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Homepage -->
+    <div class="homepage" id="homepage">
+        <div class="homepage-header">
+            <h1>YAKINEKO</h1>
+            <p>Thư viện tác phẩm truyện tranh của AkiR</p>
+        </div>
+        <div class="comics-grid" id="comicsGrid"></div>
+    </div>
+
+    <!-- Reader Page -->
+    <div class="reader-page" id="readerPage">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <header class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goToHomepage()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                    Trang chủ
+                </button>
+                <div class="header-title">
+                    <h1 id="comicTitle"></h1>
+                    <p id="chapterTitle"></p>
+                </div>
+                <button class="menu-btn" onclick="toggleMenu()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12h18M3 6h18M3 18h18"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+        <div class="side-menu" id="sideMenu">
+            <div class="menu-header">
+                <h2>Danh Sách Chương</h2>
+                <button class="close-btn" onclick="toggleMenu()">×</button>
+            </div>
+            <div class="chapter-list" id="chapterList"></div>
+        </div>
+
+        <main class="main-content" id="mainContent"></main>
+
+        <footer class="footer-nav">
+            <div class="footer-content">
+                <button class="nav-btn" id="prevBtn" onclick="prevChapter()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                    Trước
+                </button>
+                <button class="home-btn" onclick="goToHomepage()" title="Về trang chủ">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </button>
+                <div class="page-indicator" id="pageIndicator">1 / 3</div>
+                <button class="nav-btn" id="nextBtn" onclick="nextChapter()">
+                    Tiếp
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Unlock Modal -->
+    <div class="modal-overlay" id="unlockModal">
+        <div class="modal">
+            <h2>🔐 Nhập Mật Mã</h2>
+            <p id="unlockMessage">Nhập mật mã 10 số để mở khóa truyện này</p>
+            <input type="text" class="modal-input" id="unlockInput" maxlength="10" placeholder="Nhập mã...">
+            <div class="error-message" id="unlockError"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeUnlockModal()">Hủy</button>
+                <button class="modal-btn primary" onclick="checkUnlockCode()">Mở Khóa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal">
+            <h2>🔑 Admin Access</h2>
+            <p>Nhập mật khẩu admin để truy cập A.Zone</p>
+            <input type="password" class="modal-input" id="adminPassword" placeholder="Mật khẩu admin...">
+            <div class="error-message" id="adminError"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeAdminModal()">Hủy</button>
+                <button class="modal-btn primary" onclick="checkAdminPassword()">Xác Nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div class="modal-overlay" id="adminPanelModal">
+        <div class="modal wide">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">🎯 A.Zone</h2>
+                <button class="close-btn" onclick="closeAdminPanelModal()">×</button>
+            </div>
+            
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="switchAdminTab('codes')">📋 Mã Truy Cập</button>
+                <button class="admin-tab" onclick="switchAdminTab('images')">🖼️ Quản Lý Ảnh</button>
+            </div>
+
+            <!-- Codes Tab -->
+            <div class="admin-tab-content active" id="codesTab">
+                <div class="code-list" id="codeList"></div>
+            </div>
+
+            <!-- Images Tab -->
+            <div class="admin-tab-content" id="imagesTab">
+                <div class="comic-select" id="comicSelectList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Donate Modal -->
+    <div class="modal-overlay" id="donateModal">
+        <div class="modal">
+            <h2>💖 Donate</h2>
+            <div class="donate-content">
+                <div class="donate-info">
+                    <p>Cảm ơn quý độc giả đã ủng hộ!</p>
+                    <p>Quét mã QR bên dưới để donate</p>
+                </div>
+                <div class="qr-code">
+                    <img src="images/e397c89c-41d0-42f6-a086-8fcc732f1928.jpg" alt="QR Code">
+                </div>
+                <p style="color: #666; font-size: 13px;">Dù ít hay nhiều cũng đều ý nghĩa!</p>
+            </div>
+            <button class="modal-btn secondary" onclick="closeDonateModal()" style="width: 100%; margin-top: 20px;">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Hidden file input -->
+    <input type="file" id="fileInput" accept="image/*" multiple style="display: none">
+
+    <script>
+        const ADMIN_PASSWORD = "Monikayeudau@20217885";
+        const CODE_DURATION = 30 * 60 * 1000; // 30 phút
+
+        // Dữ liệu truyện
+        const allComics = [
+            {
+                id: 0,
+                title: "Truyện #1",
+                cover: "https://via.placeholder.com/400x533/FF6B6B/fff?text=Pickle+Ball",
+                isNew: true,
+                isLocked: true,
+                images: [], // Lưu danh sách ảnh
+                chapters: [
+                    {
+                        id: 0,
+                        title: "Chương 1: ABC",
+                        panels: [
+                            { type: 'text', content: 'Chương 1', subtitle: 'Khởi Đầu' },
+                            { type: 'image', url: 'images/truyen1-chap1-panel1.jpg', alt: 'Panel 1' },
+                            { type: 'image', url: 'images/truyen1-chap1-panel2.jpg', alt: 'Panel 2' },
+                            { type: 'image', url: 'images/truyen1-chap1-panel3.jpg', alt: 'Panel 3' },
+                            { type: 'image', url: 'images/truyen1-chap1-panel4.jpg', alt: 'Panel 4' },
+                        ]
+                    },
+                    {
+                        id: 1,
+                        title: "Chương 2: XYZ",
+                        panels: [
+                            { type: 'text', content: 'Chương 2', subtitle: 'Tiếp Tục' },
+                            { type: 'image', url: 'images/truyen1-chap2-panel1.jpg', alt: 'Panel 1' },
+                            { type: 'image', url: 'images/truyen1-chap2-panel2.jpg', alt: 'Panel 2' },
+                            { type: 'image', url: 'images/truyen1-chap2-panel3.jpg', alt: 'Panel 3' },
+                            { type: 'image', url: 'images/truyen1-chap2-panel4.jpg', alt: 'Panel 4' },
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 1,
+                title: "Truyện #2",
+                cover: "https://via.placeholder.com/400x533/4ECDC4/fff?text=Doi+Thuong",
+                isNew: false,
+                isLocked: true,
+                images: [],
+                chapters: [
+                    {
+                        id: 0,
+                        title: "Chương 1: Buổi Sáng",
+                        panels: [
+                            { type: 'text', content: 'Chương 1', subtitle: 'Buổi Sáng' },
+                            { type: 'image', url: 'images/truyen2-chap1-panel1.jpg', alt: 'Panel 1' },
+                            { type: 'image', url: 'images/truyen2-chap1-panel2.jpg', alt: 'Panel 2' },
+                            { type: 'image', url: 'images/truyen2-chap1-panel3.jpg', alt: 'Panel 3' },
+                            { type: 'image', url: 'images/truyen2-chap1-panel4.jpg', alt: 'Panel 4' },
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "Truyện sếch",
+                cover: "https://via.placeholder.com/400x533/45B7D1/fff?text=Meo+Chuot",
+                isNew: true,
+                isLocked: true,
+                images: [],
+                chapters: [
+                    {
+                        id: 0,
+                        title: "Chương 1: Cuộc Đối Đầu",
+                        panels: [
+                            { type: 'text', content: 'Chương 1', subtitle: 'Cuộc Đối Đầu' },
+                            { type: 'image', url: 'images/truyen3-chap1-panel1.jpg', alt: 'Panel 1' },
+                            { type: 'image', url: 'images/truyen3-chap1-panel2.jpg', alt: 'Panel 2' },
+                            { type: 'image', url: 'images/truyen3-chap1-panel3.jpg', alt: 'Panel 3' },
+                            { type: 'image', url: 'images/truyen3-chap1-panel4.jpg', alt: 'Panel 4' },
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "Truyện #4",
+                cover: "https://via.placeholder.com/400x533/96CEB4/fff?text=Phieu+Luu",
+                isNew: false,
+                isLocked: true,
+                images: [],
+                chapters: [
+                    {
+                        id: 0,
+                        title: "Chương 1: Ra Khơi",
+                        panels: [
+                            { type: 'text', content: 'Chương 1', subtitle: 'Ra Khơi' },
+                            { type: 'image', url: 'images/truyen4-chap1-panel1.jpg', alt: 'Panel 1' },
+                            { type: 'image', url: 'images/truyen4-chap1-panel2.jpg', alt: 'Panel 2' },
+                            { type: 'image', url: 'images/truyen4-chap1-panel3.jpg', alt: 'Panel 3' },
+                            { type: 'image', url: 'images/truyen4-chap1-panel4.jpg', alt: 'Panel 4' },
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "Lát cắt cột sống",
+                cover: "https://via.placeholder.com/400x533/A29BFE/fff?text=Tinh+Yeu",
+                isNew: true,
+                isLocked: true,
+                images: [],
+                chapters: [
+                    {
+                        id: 0,
+                        title: "Chương 1: Gặp Gỡ",
+                        panels: [
+                            { type: 'text', content: 'Chương 1', subtitle: 'Gặp Gỡ' },
+                            { type: 'image', url: 'images/truyen5-chap1-panel1.jpg', alt: 'Panel 1' },
+                            { type: 'image', url: 'images/truyen5-chap1-panel2.jpg', alt: 'Panel 2' },
+                            { type: 'image', url: 'images/truyen5-chap1-panel3.jpg', alt: 'Panel 3' },
+                            { type: 'image', url: 'images/truyen5-chap1-panel4.jpg', alt: 'Panel 4' },
+                        ]
+                    }
+                ]
+            },
+        ];
+
+        let currentComicId = null;
+        let currentChapter = 0;
+        let pendingComicId = null;
+        let accessCodes = {};
+        let codeTimers = {};
+        let selectedComicForUpload = null;
+
+        // Tạo mã ngẫu nhiên 10 số
+        function generateCode() {
+            return Math.floor(1000000000 + Math.random() * 9000000000).toString();
+        }
+
+        // Khởi tạo mã cho mỗi truyện bị khóa
+        function initializeCodes() {
+            allComics.forEach(comic => {
+                if (comic.isLocked) {
+                    accessCodes[comic.id] = {
+                        code: generateCode(),
+                        createdAt: Date.now()
+                    };
+                    startCodeTimer(comic.id);
+                }
+            });
+        }
+
+        // Bắt đầu timer cho mã
+        function startCodeTimer(comicId) {
+            if (codeTimers[comicId]) {
+                clearInterval(codeTimers[comicId]);
+            }
+            
+            codeTimers[comicId] = setInterval(() => {
+                const codeData = accessCodes[comicId];
+                const elapsed = Date.now() - codeData.createdAt;
+                
+                if (elapsed >= CODE_DURATION) {
+                    accessCodes[comicId] = {
+                        code: generateCode(),
+                        createdAt: Date.now()
+                    };
+                }
+                
+                updateAdminPanel();
+            }, 1000);
+        }
+
+        // Tính thời gian còn lại
+        function getTimeRemaining(comicId) {
+            const codeData = accessCodes[comicId];
+            const elapsed = Date.now() - codeData.createdAt;
+            const remaining = CODE_DURATION - elapsed;
+            
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Khởi tạo homepage
+        function initHomepage() {
+            const grid = document.getElementById('comicsGrid');
+            grid.innerHTML = allComics.map(comic => `
+                <div class="comic-card ${comic.isLocked ? 'locked' : ''}" onclick="openComic(${comic.id})">
+                    ${comic.isLocked ? '<div class="lock-badge">🔒 Đã khóa</div>' : ''}
+                    ${comic.isNew && !comic.isLocked ? '<div class="comic-badge">MỚI</div>' : ''}
+                    <img src="${comic.cover}" alt="${comic.title}" class="comic-cover">
+                    <div class="comic-info">
+                        <div class="comic-title">${comic.title}</div>
+                        <div class="comic-chapters">${comic.chapters.length} chương</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Mở truyện
+        function openComic(comicId) {
+            const comic = allComics.find(c => c.id === comicId);
+            
+            if (comic.isLocked) {
+                pendingComicId = comicId;
+                document.getElementById('unlockMessage').textContent = 
+                    `Nhập mật mã 10 số để mở khóa "${comic.title}"`;
+                document.getElementById('unlockModal').classList.add('active');
+                document.getElementById('unlockInput').value = '';
+                document.getElementById('unlockError').textContent = '';
+            } else {
+                actuallyOpenComic(comicId);
+            }
+        }
+
+        // Thực sự mở truyện
+        function actuallyOpenComic(comicId) {
+            currentComicId = comicId;
+            currentChapter = 0;
+            const comic = allComics.find(c => c.id === comicId);
+            
+            document.getElementById('homepage').style.display = 'none';
+            document.getElementById('readerPage').classList.add('active');
+            document.getElementById('comicTitle').textContent = comic.title;
+            
+            renderChapterList();
+            loadChapter(0);
+            updateNavigation();
+        }
+
+        // Kiểm tra mã unlock
+        function checkUnlockCode() {
+            const input = document.getElementById('unlockInput').value.trim();
+            const errorEl = document.getElementById('unlockError');
+            
+            if (input.length !== 10) {
+                errorEl.textContent = 'Mã phải có đúng 10 số!';
+                return;
+            }
+            
+            const correctCode = accessCodes[pendingComicId].code;
+            
+            if (input === correctCode) {
+                closeUnlockModal();
+                actuallyOpenComic(pendingComicId);
+            } else {
+                errorEl.textContent = 'Mã không đúng! Vui lòng thử lại.';
+            }
+        }
+
+        // Đóng unlock modal
+        function closeUnlockModal() {
+            document.getElementById('unlockModal').classList.remove('active');
+            pendingComicId = null;
+        }
+
+        // Hiện admin panel
+        function showAdminPanel() {
+            document.getElementById('adminModal').classList.add('active');
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminError').textContent = '';
+        }
+
+        // Kiểm tra mật khẩu admin
+        function checkAdminPassword() {
+            const input = document.getElementById('adminPassword').value;
+            
+            if (input === ADMIN_PASSWORD) {
+                closeAdminModal();
+                document.getElementById('adminPanelModal').classList.add('active');
+                switchAdminTab('codes');
+            } else {
+                document.getElementById('adminError').textContent = 'Mật khẩu không đúng!';
+            }
+        }
+
+        // Chuyển tab admin
+        function switchAdminTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.admin-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            if (tabName === 'codes') {
+                document.getElementById('codesTab').classList.add('active');
+                updateAdminPanel();
+            } else if (tabName === 'images') {
+                document.getElementById('imagesTab').classList.add('active');
+                renderComicSelectList();
+            }
+        }
+
+        // Cập nhật admin panel
+        function updateAdminPanel() {
+            const codeListEl = document.getElementById('codeList');
+            const lockedComics = allComics.filter(c => c.isLocked);
+            
+            codeListEl.innerHTML = lockedComics.map(comic => `
+                <div class="code-item">
+                    <div class="code-item-header">
+                        <div class="code-item-title">${comic.title}</div>
+                        <button class="copy-btn" onclick="copyCode('${accessCodes[comic.id].code}')">Copy</button>
+                    </div>
+                    <div class="code-value">${accessCodes[comic.id].code}</div>
+                    <div class="code-timer">⏱️ Còn lại: ${getTimeRemaining(comic.id)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Render danh sách truyện để chọn upload
+        function renderComicSelectList() {
+            const listEl = document.getElementById('comicSelectList');
+            listEl.innerHTML = allComics.map(comic => `
+                <div class="comic-select-item ${selectedComicForUpload === comic.id ? 'selected' : ''}" 
+                     onclick="selectComicForUpload(${comic.id})">
+                    <div class="comic-select-header">
+                        <div class="comic-select-title">${comic.title}</div>
+                        <div style="color: #888; font-size: 14px;">${comic.images.length} ảnh</div>
+                    </div>
+                    ${selectedComicForUpload === comic.id ? `
+                        <div class="upload-zone" onclick="event.stopPropagation(); triggerFileInput()">
+                            <div class="upload-icon">📤</div>
+                            <div class="upload-text">Click để tải ảnh lên<br><small>hoặc kéo thả file vào đây</small></div>
+                        </div>
+                        ${comic.images.length > 0 ? `
+                            <div class="image-grid">
+                                ${comic.images.map((img, idx) => `
+                                    <div class="image-item">
+                                        <img src="${img.url}" alt="${img.name}">
+                                        <button class="image-delete" onclick="event.stopPropagation(); deleteImage(${comic.id}, ${idx})" title="Xóa ảnh">×</button>
+                                        <div class="image-info">${img.name}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<div class="no-images">Chưa có ảnh nào</div>'}
+                    ` : ''}
+                </div>
+            `).join('');
+
+            // Setup drag and drop
+            if (selectedComicForUpload !== null) {
+                const uploadZone = document.querySelector('.upload-zone');
+                if (uploadZone) {
+                    setupDragAndDrop(uploadZone);
+                }
+            }
+        }
+
+        // Chọn truyện để upload
+        function selectComicForUpload(comicId) {
+            selectedComicForUpload = selectedComicForUpload === comicId ? null : comicId;
+            renderComicSelectList();
+        }
+
+        // Trigger file input
+        function triggerFileInput() {
+            document.getElementById('fileInput').click();
+        }
+
+        // Setup drag and drop
+        function setupDragAndDrop(element) {
+            element.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                element.classList.add('dragover');
+            });
+
+            element.addEventListener('dragleave', () => {
+                element.classList.remove('dragover');
+            });
+
+            element.addEventListener('drop', (e) => {
+                e.preventDefault();
+                element.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                handleFiles(files);
+            });
+        }
+
+        // Handle file input change
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+            e.target.value = ''; // Reset input
+        });
+
+        // Handle files
+        function handleFiles(files) {
+            if (selectedComicForUpload === null) return;
+
+            const comic = allComics.find(c => c.id === selectedComicForUpload);
+            const fileArray = Array.from(files);
+
+            fileArray.forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    comic.images.push({
+                        url: e.target.result,
+                        name: file.name,
+                        size: file.size,
+                        uploadDate: new Date().toISOString()
+                    });
+                    renderComicSelectList();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Xóa ảnh
+        function deleteImage(comicId, imageIndex) {
+            if (!confirm('Bạn có chắc muốn xóa ảnh này?')) return;
+
+            const comic = allComics.find(c => c.id === comicId);
+            comic.images.splice(imageIndex, 1);
+            renderComicSelectList();
+        }
+
+        // Copy mã
+        function copyCode(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Đã copy mã: ' + code);
+            });
+        }
+
+        // Đóng admin modal
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.remove('active');
+        }
+
+        // Đóng admin panel modal
+        function closeAdminPanelModal() {
+            document.getElementById('adminPanelModal').classList.remove('active');
+            selectedComicForUpload = null;
+        }
+
+        // Hiện donate
+        function showDonate() {
+            document.getElementById('donateModal').classList.add('active');
+        }
+
+        // Đóng donate modal
+        function closeDonateModal() {
+            document.getElementById('donateModal').classList.remove('active');
+        }
+
+        // Quay về trang chủ
+        function goToHomepage() {
+            document.getElementById('homepage').style.display = 'block';
+            document.getElementById('readerPage').classList.remove('active');
+            window.scrollTo(0, 0);
+        }
+
+        // Render danh sách chương
+        function renderChapterList() {
+            const comic = allComics.find(c => c.id === currentComicId);
+            const listEl = document.getElementById('chapterList');
+            listEl.innerHTML = comic.chapters.map((chapter, index) => `
+                <div class="chapter-item ${index === currentChapter ? 'active' : ''}" 
+                     onclick="loadChapter(${index})">
+                    <h3>${chapter.title}</h3>
+                    <p>${chapter.panels.length - 1} panels</p>
+                </div>
+            `).join('');
+        }
+
+        // Load chương
+        function loadChapter(index) {
+            const comic = allComics.find(c => c.id === currentComicId);
+            currentChapter = index;
+            const chapter = comic.chapters[index];
+            
+            document.getElementById('chapterTitle').textContent = chapter.title;
+            
+            const contentEl = document.getElementById('mainContent');
+            contentEl.innerHTML = chapter.panels.map(panel => {
+                if (panel.type === 'text') {
+                    return `
+                        <div class="panel panel-text">
+                            <h2>${panel.content}</h2>
+                            <p>${panel.subtitle}</p>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="panel">
+                            <img src="${panel.url}" alt="${panel.alt}" loading="lazy">
+                        </div>
+                    `;
+                }
+            }).join('');
+            
+            window.scrollTo(0, 0);
+            updateNavigation();
+            renderChapterList();
+            if (document.getElementById('sideMenu').classList.contains('active')) {
+                toggleMenu();
+            }
+        }
+
+        // Toggle menu
+        function toggleMenu() {
+            const overlay = document.getElementById('menuOverlay');
+            const menu = document.getElementById('sideMenu');
+            overlay.classList.toggle('active');
+            menu.classList.toggle('active');
+        }
+
+        // Navigation
+        function prevChapter() {
+            if (currentChapter > 0) {
+                loadChapter(currentChapter - 1);
+            }
+        }
+
+        function nextChapter() {
+            const comic = allComics.find(c => c.id === currentComicId);
+            if (currentChapter < comic.chapters.length - 1) {
+                loadChapter(currentChapter + 1);
+            }
+        }
+
+        function updateNavigation() {
+            const comic = allComics.find(c => c.id === currentComicId);
+            document.getElementById('prevBtn').disabled = currentChapter === 0;
+            document.getElementById('nextBtn').disabled = currentChapter === comic.chapters.length - 1;
+            document.getElementById('pageIndicator').textContent = 
+                `${currentChapter + 1} / ${comic.chapters.length}`;
+        }
+
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const winScroll = document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressFill').style.width = scrolled + '%';
+        });
+
+        // Enter key handlers
+        document.getElementById('unlockInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkUnlockCode();
+        });
+
+        document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkAdminPassword();
+        });
+
+        // Khởi động
+        initializeCodes();
+        initHomepage();
+    </script>
+</body>
+</html>
