@@ -196,6 +196,25 @@
             gap: 6px;
         }
 
+        /* Loading Indicator */
+        .loading {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
         /* Modal Styles */
         .modal-overlay {
             position: fixed;
@@ -1118,7 +1137,6 @@
                 cover: "https://via.placeholder.com/400x533/FF6B6B/fff?text=Pickle+Ball",
                 isNew: true,
                 isLocked: true,
-                images: [], // Lưu danh sách ảnh
                 chapters: [
                     {
                         id: 0,
@@ -1150,15 +1168,16 @@
                 cover: "https://via.placeholder.com/400x533/4ECDC4/fff?text=Doi+Thuong",
                 isNew: false,
                 isLocked: true,
-                images: [],
                 chapters: [
                     {
                         id: 0,
-                        title: "Chương 0: Mấy cái áo ngớ ngẩn",
+                        title: "Chương 1: Buổi Sáng",
                         panels: [
-                            { type: 'text', content: 'Chương 0', subtitle: 'Mấy cái áo ngớ ngẩn' },
-                            { type: 'image', url: 'images/480274010_493043567181531_4998401967618470342_n.jpg', alt: 'Panel 1' },
-                            { type: 'image', url: 'images/480537893_493043230514898_7589645310496211227_n.jpg', alt: 'Panel 2' },
+                            { type: 'text', content: 'Chương 1', subtitle: 'Buổi Sáng' },
+                            { type: 'image', url: 'images/truyen2-chap1-panel1.jpg', alt: 'Panel 1' },
+                            { type: 'image', url: 'images/truyen2-chap1-panel2.jpg', alt: 'Panel 2' },
+                            { type: 'image', url: 'images/truyen2-chap1-panel3.jpg', alt: 'Panel 3' },
+                            { type: 'image', url: 'images/truyen2-chap1-panel4.jpg', alt: 'Panel 4' },
                         ]
                     }
                 ]
@@ -1169,7 +1188,6 @@
                 cover: "https://via.placeholder.com/400x533/45B7D1/fff?text=Meo+Chuot",
                 isNew: true,
                 isLocked: true,
-                images: [],
                 chapters: [
                     {
                         id: 0,
@@ -1190,7 +1208,6 @@
                 cover: "https://via.placeholder.com/400x533/96CEB4/fff?text=Phieu+Luu",
                 isNew: false,
                 isLocked: true,
-                images: [],
                 chapters: [
                     {
                         id: 0,
@@ -1211,7 +1228,6 @@
                 cover: "https://via.placeholder.com/400x533/A29BFE/fff?text=Tinh+Yeu",
                 isNew: true,
                 isLocked: true,
-                images: [],
                 chapters: [
                     {
                         id: 0,
@@ -1234,6 +1250,73 @@
         let accessCodes = {};
         let codeTimers = {};
         let selectedComicForUpload = null;
+        let isLoadingImages = false;
+
+        // ============ STORAGE FUNCTIONS ============
+        
+        // Load ảnh từ storage
+        async function loadImagesFromStorage(comicId) {
+            try {
+                const result = await window.storage.list(`comic_${comicId}_image_`);
+                const images = [];
+                
+                if (result && result.keys) {
+                    for (const key of result.keys) {
+                        try {
+                            const imageData = await window.storage.get(key);
+                            if (imageData && imageData.value) {
+                                const parsed = JSON.parse(imageData.value);
+                                images.push(parsed);
+                            }
+                        } catch (e) {
+                            console.error('Error loading image:', e);
+                        }
+                    }
+                }
+                
+                // Sắp xếp theo thời gian upload
+                images.sort((a, b) => new Date(a.uploadDate) - new Date(b.uploadDate));
+                return images;
+            } catch (error) {
+                console.error('Error loading images from storage:', error);
+                return [];
+            }
+        }
+
+        // Lưu ảnh vào storage
+        async function saveImageToStorage(comicId, imageData) {
+            try {
+                const timestamp = Date.now();
+                const key = `comic_${comicId}_image_${timestamp}`;
+                await window.storage.set(key, JSON.stringify(imageData));
+                return true;
+            } catch (error) {
+                console.error('Error saving image:', error);
+                return false;
+            }
+        }
+
+        // Xóa ảnh từ storage
+        async function deleteImageFromStorage(comicId, imageTimestamp) {
+            try {
+                const key = `comic_${comicId}_image_${imageTimestamp}`;
+                await window.storage.delete(key);
+                return true;
+            } catch (error) {
+                console.error('Error deleting image:', error);
+                return false;
+            }
+        }
+
+        // Load ảnh cho tất cả truyện khi khởi động
+        async function loadAllImages() {
+            for (const comic of allComics) {
+                const images = await loadImagesFromStorage(comic.id);
+                comic.images = images;
+            }
+        }
+
+        // ============ CODE GENERATION ============
 
         // Tạo mã ngẫu nhiên 10 số
         function generateCode() {
@@ -1286,8 +1369,10 @@
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
+        // ============ HOMEPAGE ============
+
         // Khởi tạo homepage
-        function initHomepage() {
+        async function initHomepage() {
             const grid = document.getElementById('comicsGrid');
             grid.innerHTML = allComics.map(comic => `
                 <div class="comic-card ${comic.isLocked ? 'locked' : ''}" onclick="openComic(${comic.id})">
@@ -1359,6 +1444,8 @@
             pendingComicId = null;
         }
 
+        // ============ ADMIN PANEL ============
+
         // Hiện admin panel
         function showAdminPanel() {
             document.getElementById('adminModal').classList.add('active');
@@ -1367,20 +1454,20 @@
         }
 
         // Kiểm tra mật khẩu admin
-        function checkAdminPassword() {
+        async function checkAdminPassword() {
             const input = document.getElementById('adminPassword').value;
             
             if (input === ADMIN_PASSWORD) {
                 closeAdminModal();
                 document.getElementById('adminPanelModal').classList.add('active');
-                switchAdminTab('codes');
+                await switchAdminTab('codes');
             } else {
                 document.getElementById('adminError').textContent = 'Mật khẩu không đúng!';
             }
         }
 
         // Chuyển tab admin
-        function switchAdminTab(tabName) {
+        async function switchAdminTab(tabName) {
             // Update tabs
             document.querySelectorAll('.admin-tab').forEach(tab => {
                 tab.classList.remove('active');
@@ -1397,7 +1484,7 @@
                 updateAdminPanel();
             } else if (tabName === 'images') {
                 document.getElementById('imagesTab').classList.add('active');
-                renderComicSelectList();
+                await renderComicSelectList();
             }
         }
 
@@ -1419,26 +1506,38 @@
         }
 
         // Render danh sách truyện để chọn upload
-        function renderComicSelectList() {
+        async function renderComicSelectList() {
             const listEl = document.getElementById('comicSelectList');
+            
+            if (isLoadingImages) {
+                listEl.innerHTML = '<div class="loading">Đang tải ảnh</div>';
+                return;
+            }
+
+            // Reload images từ storage nếu có truyện được chọn
+            if (selectedComicForUpload !== null) {
+                const comic = allComics.find(c => c.id === selectedComicForUpload);
+                comic.images = await loadImagesFromStorage(selectedComicForUpload);
+            }
+            
             listEl.innerHTML = allComics.map(comic => `
                 <div class="comic-select-item ${selectedComicForUpload === comic.id ? 'selected' : ''}" 
                      onclick="selectComicForUpload(${comic.id})">
                     <div class="comic-select-header">
                         <div class="comic-select-title">${comic.title}</div>
-                        <div style="color: #888; font-size: 14px;">${comic.images.length} ảnh</div>
+                        <div style="color: #888; font-size: 14px;">${comic.images ? comic.images.length : 0} ảnh</div>
                     </div>
                     ${selectedComicForUpload === comic.id ? `
                         <div class="upload-zone" onclick="event.stopPropagation(); triggerFileInput()">
                             <div class="upload-icon">📤</div>
                             <div class="upload-text">Click để tải ảnh lên<br><small>hoặc kéo thả file vào đây</small></div>
                         </div>
-                        ${comic.images.length > 0 ? `
+                        ${comic.images && comic.images.length > 0 ? `
                             <div class="image-grid">
-                                ${comic.images.map((img, idx) => `
+                                ${comic.images.map((img) => `
                                     <div class="image-item">
                                         <img src="${img.url}" alt="${img.name}">
-                                        <button class="image-delete" onclick="event.stopPropagation(); deleteImage(${comic.id}, ${idx})" title="Xóa ảnh">×</button>
+                                        <button class="image-delete" onclick="event.stopPropagation(); deleteImage(${comic.id}, ${img.timestamp})" title="Xóa ảnh">×</button>
                                         <div class="image-info">${img.name}</div>
                                     </div>
                                 `).join('')}
@@ -1450,17 +1549,19 @@
 
             // Setup drag and drop
             if (selectedComicForUpload !== null) {
-                const uploadZone = document.querySelector('.upload-zone');
-                if (uploadZone) {
-                    setupDragAndDrop(uploadZone);
-                }
+                setTimeout(() => {
+                    const uploadZone = document.querySelector('.upload-zone');
+                    if (uploadZone) {
+                        setupDragAndDrop(uploadZone);
+                    }
+                }, 100);
             }
         }
 
         // Chọn truyện để upload
-        function selectComicForUpload(comicId) {
+        async function selectComicForUpload(comicId) {
             selectedComicForUpload = selectedComicForUpload === comicId ? null : comicId;
-            renderComicSelectList();
+            await renderComicSelectList();
         }
 
         // Trigger file input
@@ -1494,36 +1595,57 @@
         });
 
         // Handle files
-        function handleFiles(files) {
+        async function handleFiles(files) {
             if (selectedComicForUpload === null) return;
 
             const comic = allComics.find(c => c.id === selectedComicForUpload);
             const fileArray = Array.from(files);
 
-            fileArray.forEach(file => {
-                if (!file.type.startsWith('image/')) return;
+            isLoadingImages = true;
+            await renderComicSelectList();
 
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    comic.images.push({
-                        url: e.target.result,
+            for (const file of fileArray) {
+                if (!file.type.startsWith('image/')) continue;
+
+                try {
+                    const reader = new FileReader();
+                    const base64 = await new Promise((resolve, reject) => {
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+
+                    const imageData = {
+                        url: base64,
                         name: file.name,
                         size: file.size,
-                        uploadDate: new Date().toISOString()
-                    });
-                    renderComicSelectList();
-                };
-                reader.readAsDataURL(file);
-            });
+                        uploadDate: new Date().toISOString(),
+                        timestamp: Date.now()
+                    };
+
+                    await saveImageToStorage(selectedComicForUpload, imageData);
+                    
+                } catch (error) {
+                    console.error('Error processing file:', error);
+                    alert(`Lỗi khi tải ${file.name}: ${error.message}`);
+                }
+            }
+
+            isLoadingImages = false;
+            await renderComicSelectList();
         }
 
         // Xóa ảnh
-        function deleteImage(comicId, imageIndex) {
+        async function deleteImage(comicId, imageTimestamp) {
             if (!confirm('Bạn có chắc muốn xóa ảnh này?')) return;
 
-            const comic = allComics.find(c => c.id === comicId);
-            comic.images.splice(imageIndex, 1);
-            renderComicSelectList();
+            const success = await deleteImageFromStorage(comicId, imageTimestamp);
+            
+            if (success) {
+                await renderComicSelectList();
+            } else {
+                alert('Có lỗi khi xóa ảnh!');
+            }
         }
 
         // Copy mã
@@ -1544,6 +1666,8 @@
             selectedComicForUpload = null;
         }
 
+        // ============ DONATE ============
+
         // Hiện donate
         function showDonate() {
             document.getElementById('donateModal').classList.add('active');
@@ -1553,6 +1677,8 @@
         function closeDonateModal() {
             document.getElementById('donateModal').classList.remove('active');
         }
+
+        // ============ READER ============
 
         // Quay về trang chủ
         function goToHomepage() {
@@ -1565,13 +1691,19 @@
         function renderChapterList() {
             const comic = allComics.find(c => c.id === currentComicId);
             const listEl = document.getElementById('chapterList');
-            listEl.innerHTML = comic.chapters.map((chapter, index) => `
-                <div class="chapter-item ${index === currentChapter ? 'active' : ''}" 
-                     onclick="loadChapter(${index})">
-                    <h3>${chapter.title}</h3>
-                    <p>${chapter.panels.length - 1} panels</p>
-                </div>
-            `).join('');
+            listEl.innerHTML = comic.chapters.map((chapter, index) => {
+                // Tính tổng số panels (bao gồm cả ảnh upload)
+                const uploadedImagesCount = (comic.images && index === 0) ? comic.images.length : 0;
+                const totalPanels = chapter.panels.length - 1 + uploadedImagesCount;
+                
+                return `
+                    <div class="chapter-item ${index === currentChapter ? 'active' : ''}" 
+                         onclick="loadChapter(${index})">
+                        <h3>${chapter.title}</h3>
+                        <p>${totalPanels} panels ${uploadedImagesCount > 0 ? `(+${uploadedImagesCount} từ A.Zone)` : ''}</p>
+                    </div>
+                `;
+            }).join('');
         }
 
         // Load chương
@@ -1583,7 +1715,28 @@
             document.getElementById('chapterTitle').textContent = chapter.title;
             
             const contentEl = document.getElementById('mainContent');
-            contentEl.innerHTML = chapter.panels.map(panel => {
+            
+            // Lấy ảnh từ storage của truyện này
+            const uploadedImages = comic.images || [];
+            
+            // Tạo panels từ cấu trúc chapter + ảnh đã upload
+            let allPanels = [];
+            
+            // Thêm panels từ chapter
+            allPanels = [...chapter.panels];
+            
+            // Thêm các ảnh đã upload vào cuối chapter
+            if (uploadedImages.length > 0) {
+                uploadedImages.forEach((img, idx) => {
+                    allPanels.push({
+                        type: 'image',
+                        url: img.url,
+                        alt: img.name
+                    });
+                });
+            }
+            
+            contentEl.innerHTML = allPanels.map(panel => {
                 if (panel.type === 'text') {
                     return `
                         <div class="panel panel-text">
@@ -1655,9 +1808,21 @@
             if (e.key === 'Enter') checkAdminPassword();
         });
 
-        // Khởi động
-        initializeCodes();
-        initHomepage();
+        // ============ INITIALIZATION ============
+        
+        async function init() {
+            // Load ảnh từ storage
+            await loadAllImages();
+            
+            // Khởi tạo mã truy cập
+            initializeCodes();
+            
+            // Render homepage
+            await initHomepage();
+        }
+
+        // Khởi động ứng dụng
+        init();
     </script>
 </body>
 </html>
